@@ -11,9 +11,10 @@ import Peer from 'peerjs';
  * In production, the same origin serves the PeerJS endpoint.
  */
 function getPeerConfig(serverHost) {
-  const url = serverHost
-    ? new URL(serverHost)
-    : new URL(window.location.origin);
+  // Use VITE_PEER_SERVER from env if provided, or the passed serverHost, or current origin
+  const peerUrl = import.meta.env.VITE_PEER_SERVER || serverHost || window.location.origin;
+  const url = new URL(peerUrl);
+
 
   return {
     host: url.hostname,

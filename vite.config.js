@@ -11,7 +11,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/peerjs': {
-        target: 'http://localhost:3000',
+        target: 'https://secureprint-be.onrender.com',
         ws: true,        // WebSocket support — critical for PeerJS
         changeOrigin: true
       }

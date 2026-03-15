@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import { createShopPeer } from '../lib/peer';
+import { createShopPeer, prewarmServer } from '../lib/peer';
 import { wipeSession } from '../lib/wipe';
 import { reassembleChunks } from '../lib/chunker';
 import QRDisplay from '../components/QRDisplay';
@@ -31,6 +31,7 @@ export default function Shop() {
   const [expiryMinutes, setExpiryMinutes] = useState(10);
   const [jobNumber, setJobNumber] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   // File State
   const [fileBlob, setFileBlob] = useState(null);
@@ -54,11 +55,21 @@ export default function Shop() {
     localStorage.setItem('sp_job_count', jobNumber.toString());
     document.title = `${t('app_name')} — Job ${jobNumber}`;
 
+    setIsConnecting(true);
     peerRef.current = createShopPeer(id);
     
     peerRef.current.on('open', () => {
+      setIsConnecting(false);
       setState('waiting');
       toast.success("Reception session started!");
+    });
+
+    peerRef.current.on('error', (err) => {
+      setIsConnecting(false);
+      console.error('PeerJS Error:', err);
+      toast.error("Failed to connect to signalling server. Retrying...");
+      // Try to prewarm again if it failed
+      prewarmServer();
     });
 
     peerRef.current.on('connection', (conn) => {
@@ -164,8 +175,16 @@ export default function Shop() {
                   </select>
                 </div>
               </div>
-              <button onClick={startSession} className="btn-primary">
-                {t('start_session')} <Store className="w-5 h-5" />
+              <button 
+                onClick={startSession} 
+                className={`btn-primary ${isConnecting ? 'opacity-70 cursor-wait' : ''}`}
+                disabled={isConnecting}
+              >
+                {isConnecting ? (
+                  <>Connecting... <Clock className="w-5 h-5 animate-spin" /></>
+                ) : (
+                  <>{t('start_session')} <Store className="w-5 h-5" /></>
+                )}
               </button>
               <button onClick={() => navigate('/')} className="back-button mt-4">
                 <ArrowLeft className="w-4 h-4 inline mr-2" /> {t('back')}

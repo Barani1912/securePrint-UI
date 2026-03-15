@@ -12,8 +12,8 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        <div className="navbar-logo">S</div>
-        <h1 className="navbar-title">SecurePrint</h1>
+        <div className="navbar-logo">P</div>
+        <h1 className="navbar-title">Patrona</h1>
       </div>
       <div className="navbar-right">
         <button className="navbar-lang-button" onClick={toggleLanguage}>

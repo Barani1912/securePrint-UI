@@ -8,6 +8,7 @@ export default function DocumentViewer({ blobUrl, fileType, fileName, onPrint })
 
   return (
     <motion.div 
+      id="document-viewer"
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       className="flex flex-col items-center gap-[40px] w-full"
@@ -35,7 +36,7 @@ export default function DocumentViewer({ blobUrl, fileType, fileName, onPrint })
               <p className="text-muted text-sm text-center max-w-xs leading-relaxed">{t('pdf_fallback_msg')}</p>
               <iframe 
                 src={`${blobUrl}#toolbar=0&navpanes=0`} 
-                className="hidden" 
+                className="hidden print:block print:w-full print:h-[1000px]" 
                 title="PDF Viewer"
               />
             </div>

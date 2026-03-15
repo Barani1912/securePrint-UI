@@ -2,10 +2,12 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Store, Smartphone, ArrowRight } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function Landing() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  
 
   return (
     <div className="landing-page">

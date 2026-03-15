@@ -6,8 +6,17 @@ import Shop from './pages/Shop.jsx'
 import Send from './pages/Send.jsx'
 import HowItWorks from './pages/HowItWorks.jsx'
 import Documentation from './pages/Documentation.jsx'
+import { useEffect } from 'react'
+import { prewarmServer } from './lib/peer'
 
 function App() {
+  useEffect(() => {
+    prewarmServer();
+    // Re-ping every 60s to stay awake while user explores
+    const interval = setInterval(prewarmServer, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <BrowserRouter>
       <div className="page-wrapper">

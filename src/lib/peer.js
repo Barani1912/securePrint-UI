@@ -47,3 +47,11 @@ export function createCustomerPeer(serverHost) {
   const config = getPeerConfig(serverHost);
   return new Peer(config);
 }
+/**
+ * Ping the server to wake it up (cold start prevention).
+ * Useful for free-tier deployments like Render/Railway.
+ */
+export function prewarmServer(serverHost) {
+  const peerUrl = import.meta.env.VITE_PEER_SERVER || serverHost || window.location.origin;
+  fetch(`${peerUrl}/health`).catch(() => {});
+}

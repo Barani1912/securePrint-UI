@@ -88,7 +88,7 @@ export default function Send() {
     if (!selectedFile) return;
 
     if (selectedFile.size > MAX_FILE_SIZE) {
-      toast.error(t('file_too_large'));
+      toast.error("File is too large! Maximum limit is 10MB.");
       return;
     }
 
@@ -153,6 +153,9 @@ export default function Send() {
             <div className="flex flex-col items-center gap-4 py-20">
               <Loader2 className="w-12 h-12 text-ink animate-spin opacity-20" />
               <h2 className="text-xl font-bold">Establishing Secure Link</h2>
+              <button onClick={() => navigate('/')} className="back-button mt-4">
+                <ArrowLeft className="w-4 h-4 inline mr-2" /> Cancel
+              </button>
             </div>
           ) : state === 'ready' ? (
             <div className="main-card">
@@ -161,9 +164,9 @@ export default function Send() {
               </div>
               <h2 className="card-title">Send Document</h2>
 
-              <div className="w-full space-y-8 mt-4">
+              <div className="w-full flex flex-col gap-10 mt-8">
                 {/* File Dropzone */}
-                <div className="relative group border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center bg-paper hover:bg-white transition-all cursor-pointer">
+                <div className={`relative group border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center bg-paper hover:bg-white transition-all cursor-pointer min-h-[160px] ${file ? 'p-8' : 'p-12'}`}>
                   <input
                     type="file"
                     accept=".pdf,.jpg,.jpeg,.png"
@@ -171,53 +174,76 @@ export default function Send() {
                     className="absolute inset-0 opacity-0 cursor-pointer"
                   />
                   {file ? (
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-ink rounded-lg flex items-center justify-center text-white">
-                        <FileText className="w-6 h-6" />
+                    <div className="flex items-center gap-6">
+                      <div className="w-14 h-14 bg-ink rounded-xl flex items-center justify-center text-white shadow-xl">
+                        <FileText className="w-7 h-7" />
                       </div>
                       <div className="text-left">
-                        <p className="text-sm font-bold text-ink truncate max-w-[160px]">{file.name}</p>
-                        <p className="text-[10px] text-muted font-bold uppercase tracking-widest mt-1">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                        <p className="text-base font-bold text-ink truncate max-w-[200px]">{file.name}</p>
+                        <p className="text-xs text-muted font-bold uppercase tracking-widest mt-1">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center gap-3">
-                      <FileUp className="w-8 h-8 text-muted" />
-                      <span className="text-sm font-bold text-ink">{t('select_file')}</span>
+                    <div className="flex flex-col items-center gap-5">
+                      <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-muted shadow-sm group-hover:scale-110 transition-transform">
+                        <FileUp className="w-7 h-7" />
+                      </div>
+                      <span className="text-sm font-bold text-ink">{t('select_file')} (Max 10MB)</span>
                     </div>
                   )}
                 </div>
 
+                {/* Section Divider */}
+                <div className="flex items-center gap-4 px-2 py-2">
+                  <div className="h-[1px] flex-1 bg-border" />
+                  <div className="text-[10px] font-bold uppercase tracking-[0.4em] text-muted whitespace-nowrap">Security Check</div>
+                  <div className="h-[1px] flex-1 bg-border" />
+                </div>
+
                 {/* PIN Setup */}
-                <div className="space-y-6">
-                  <div className="text-left">
-                    <label className="text-xs font-bold uppercase tracking-widest text-muted block mb-4">Set 4-Digit Security PIN</label>
-                    <PinInput value={pin} onChange={setPin} />
+                <div className="flex flex-col gap-10">
+                  <div className="w-full">
+                    <label className="text-xs font-bold uppercase tracking-widest text-muted block mb-6 text-center">Set 4-Digit Security PIN</label>
+                    <div className="flex justify-center">
+                      <PinInput value={pin} onChange={setPin} />
+                    </div>
                   </div>
                   
                   {pin.length === 4 && (
                     <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-left"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="w-full"
                     >
-                      <label className="text-xs font-bold uppercase tracking-widest text-muted block mb-4">{t('confirm_pin')}</label>
-                      <PinInput value={confirmPin} onChange={setConfirmPin} />
+                      <label className="text-xs font-bold uppercase tracking-widest text-muted block mb-6 text-center">{t('confirm_pin')}</label>
+                      <div className="flex justify-center">
+                        <PinInput value={confirmPin} onChange={setConfirmPin} />
+                      </div>
                       {confirmPin.length === 4 && pin !== confirmPin && (
-                        <p className="text-accent text-[10px] font-bold uppercase tracking-widest mt-2">{t('pin_mismatch')}</p>
+                        <p className="text-accent text-xs font-bold uppercase tracking-widest mt-5 flex items-center justify-center gap-2">
+                          <AlertCircle className="w-4 h-4" /> {t('pin_mismatch')}
+                        </p>
                       )}
                     </motion.div>
                   )}
                 </div>
 
-                <button
-                  onClick={handleSend}
-                  disabled={!isFormValid}
-                  className="btn-primary"
-                >
-                  <span>{t('send_securely')}</span>
-                  <ArrowRight className="w-5 h-5" />
-                </button>
+                <div className="pt-4">
+                  <button
+                    onClick={handleSend}
+                    disabled={!isFormValid}
+                    className={`btn-primary w-full ${!isFormValid ? 'opacity-40 grayscale cursor-not-allowed' : 'hover:shadow-xl hover:translate-y-[-2px] active:translate-y-0 transition-all'}`}
+                  >
+                    <span>{t('send_securely')}</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+                  <button 
+                    onClick={() => navigate('/')} 
+                    className="w-full text-xs font-bold uppercase tracking-widest text-muted hover:text-ink transition-colors mt-6 py-2"
+                  >
+                    Cancel & Go Back
+                  </button>
+                </div>
               </div>
             </div>
           ) : state === 'sending' ? (

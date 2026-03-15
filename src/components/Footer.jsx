@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import SourceCodeModal from './SourceCodeModal';
 
 export default function Footer() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
 
   return (
     <footer className="footer">
@@ -13,12 +16,17 @@ export default function Footer() {
           Documentation
         </button>
         <div className="footer-divider"></div>
-        <a href="https://github.com/example/secureprint" target="_blank" rel="noopener noreferrer" className="footer-link">
+        <button onClick={() => setIsSourceModalOpen(true)} className="footer-link">
           GitHub
-        </a>
+        </button>
         <div className="footer-divider"></div>
-        <span className="footer-link">© 2026 SecurePrint</span>
+        <span className="footer-link">© 2026 Patrona</span>
       </div>
+
+      <SourceCodeModal 
+        isOpen={isSourceModalOpen} 
+        onClose={() => setIsSourceModalOpen(false)} 
+      />
     </footer>
   );
 }

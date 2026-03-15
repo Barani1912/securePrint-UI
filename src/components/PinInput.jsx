@@ -24,7 +24,7 @@ export default function PinInput({ value = '', onChange, disabled }) {
   };
 
   return (
-    <div className="flex gap-[12px] justify-start">
+    <div className="flex gap-[16px] justify-center">
       {[0, 1, 2, 3].map((i) => (
         <input
           key={i}
@@ -36,7 +36,7 @@ export default function PinInput({ value = '', onChange, disabled }) {
           onChange={(e) => handleChange(e, i)}
           onKeyDown={(e) => handleKeyDown(e, i)}
           disabled={disabled}
-          className="w-[48px] h-[64px] bg-paper2 border border-border rounded-lg text-[24px] font-bold text-center focus:outline-none focus:border-ink transition-all tabular-nums"
+          className="w-[54px] h-[72px] bg-white border-2 border-border rounded-xl text-[28px] font-bold text-center shadow-sm focus:outline-none focus:border-ink focus:ring-4 focus:ring-ink/5 transition-all tabular-nums"
         />
       ))}
     </div>

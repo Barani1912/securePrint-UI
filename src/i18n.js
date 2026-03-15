@@ -8,7 +8,7 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
   en: {
     translation: {
-      app_name: 'SecurePrint',
+      app_name: 'Patrona',
       tagline: 'Print safely. Leave no trace.',
       role_shop: 'I am a Print Shop',
       role_customer: 'I want to Print',
@@ -43,7 +43,7 @@ const resources = {
       view_source: 'View our open source code',
       how_it_works: 'How it Works',
       step1_title: 'Shop creates a session',
-      step1_desc: 'The shop opens SecurePrint and creates a new session. A QR code appears on screen.',
+      step1_desc: 'The shop opens Patrona and creates a new session. A QR code appears on screen.',
       step2_title: 'You scan and send',
       step2_desc: 'Scan the QR code with your phone. Select your document and create a PIN. Your file is sent directly to the shop — no server involved.',
       step3_title: 'Shop prints and deletes',
@@ -59,13 +59,13 @@ const resources = {
       ask_pin: 'Ask the customer for their PIN.',
       scan_qr: 'Scan with phone camera',
       sent_success: 'Document sent successfully!',
-      privacy_policy_box_text: 'SecurePrint uses WebRTC for direct device-to-device transfer. Your document is temporarily stored in the browser memory of the shop device and is automatically destroyed after printing or 10 minutes.',
+      privacy_policy_box_text: 'Patrona uses WebRTC for direct device-to-device transfer. Your document is temporarily stored in the browser memory of the shop device and is automatically destroyed after printing or 10 minutes.',
       transaction_id: 'Transaction ID',
     }
   },
   ta: {
     translation: {
-      app_name: 'செக்யூர்பிரிண்ட்',
+      app_name: 'பேட்ரோனா (Patrona)',
       tagline: 'பாதுகாப்பாக அச்சிடுங்கள்.',
       start_session: 'அமர்வை தொடங்கு',
       waiting: 'வாடிக்கையாளருக்காக காத்திருக்கிறோம்...',
@@ -99,7 +99,7 @@ const resources = {
       view_source: 'எங்கள் திறந்த மூல குறியீட்டைப் பார்க்கவும்',
       how_it_works: 'இது எப்படி வேலை செய்கிறது',
       step1_title: 'கடை ஒரு அமர்வை உருவாக்குகிறது',
-      step1_desc: 'கடை SecurePrint-ஐ திறந்து புதிய அமர்வை உருவாக்குகிறது. QR குறியீடு திரையில் தோன்றும்.',
+      step1_desc: 'கடை Patrona-ஐ திறந்து புதிய அமர்வை உருவாக்குகிறது. QR குறியீடு திரையில் தோன்றும்.',
       step2_title: 'நீங்கள் ஸ்கேன் செய்து அனுப்புங்கள்',
       step2_desc: 'உங்கள் தொலைபேசியில் QR குறியீட்டை ஸ்கேன் செய்யுங்கள். உங்கள் ஆவணத்தை தேர்ந்தெடுத்து PIN உருவாக்கவும். உங்கள் கோப்பு நேரடியாக கடைக்கு அனுப்பப்படுகிறது.',
       step3_title: 'கடை அச்சிடுகிறது மற்றும் நீக்குகிறது',
@@ -115,7 +115,7 @@ const resources = {
       ask_pin: 'வாடிக்கையாளரிடம் PIN கேளுங்கள்.',
       scan_qr: 'தொலைபேசி கேமராவால் ஸ்கேன் செய்யவும்',
       doc_sent: 'ஆவணம் வெற்றிகரமாக அனுப்பப்பட்டது',
-      privacy_policy_box_text: 'செக்யூர்பிரிண்ட் நேரடி சாதனத்திலிருந்து சாதனத்திற்கு பரிமாற்றத்திற்காக WebRTC-ஐப் பயன்படுத்துகிறது. உங்கள் ஆவணம் கடையின் சாதனத்தின் உலாவி நினைவகத்தில் தற்காலிகமாக சேமிக்கப்பட்டு, அச்சிடப்பட்ட பிறகு அல்லது 10 நிமிடங்களுக்குப் பிறகு தானாகவே அழிக்கப்படும்.',
+      privacy_policy_box_text: 'பேட்ரோனா (Patrona) நேரடி சாதனத்திலிருந்து சாதனத்திற்கு பரிமாற்றத்திற்காக WebRTC-ஐப் பயன்படுத்துகிறது. உங்கள் ஆவணம் கடையின் சாதனத்தின் உலாவி நினைவகத்தில் தற்காலிகமாக சேமிக்கப்பட்டு, அச்சிடப்பட்ட பிறகு அல்லது 10 நிமிடங்களுக்குப் பிறகு தானாகவே அழிக்கப்படும்.',
       transaction_id: 'பரிவர்த்தனை ஐடி',
     }
   }

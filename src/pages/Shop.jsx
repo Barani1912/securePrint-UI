@@ -10,7 +10,8 @@ import {
   ShieldAlert, 
   CheckCircle2, 
   Timer,
-  ArrowLeft
+  ArrowLeft,
+  Printer
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,7 +22,6 @@ import QRDisplay from '../components/QRDisplay';
 import CountdownTimer from '../components/CountdownTimer';
 import ProgressBar from '../components/ProgressBar';
 import PinInput from '../components/PinInput';
-import DocumentViewer from '../components/DocumentViewer';
 
 export default function Shop() {
   const { t } = useTranslation();
@@ -40,6 +40,7 @@ export default function Shop() {
   const [fileType, setFileType] = useState('');
   const [filePin, setFilePin] = useState(''); 
   const [userPin, setUserPin] = useState(''); 
+  const [isPinVerified, setIsPinVerified] = useState(false);
   const [attempts, setAttempts] = useState(0);
   
   const peerRef = useRef(null);
@@ -53,7 +54,7 @@ export default function Shop() {
     const id = crypto.randomUUID();
     setSessionId(id);
     localStorage.setItem('sp_job_count', jobNumber.toString());
-    document.title = `${t('app_name')} — Job ${jobNumber}`;
+    document.title = `${t('app_name')} — ${t('job_label')} ${jobNumber}`;
 
     setIsConnecting(true);
     peerRef.current = createShopPeer(id);
@@ -75,9 +76,20 @@ export default function Shop() {
     peerRef.current.on('connection', (conn) => {
       setState('receiving');
       let incomingChunks = [];
+      // Capture metadata from the FIRST chunk (chunks 1..N have these as null)
+      let receivedFileName = '';
+      let receivedFileType = '';
+      let receivedFilePin = '';
 
       conn.on('data', (data) => {
         if (incomingChunks.length === 0 && data.totalChunks) {
+          // Only the first chunk carries metadata — store locally so we can
+          // use the correct fileType at reassembly time (the last chunk has
+          // fileType: null, so using data.fileType there creates a typeless blob
+          // which the browser displays as raw binary text instead of rendering as PDF).
+          receivedFileName = data.fileName;
+          receivedFileType = data.fileType;
+          receivedFilePin  = data.pin;
           setFileName(data.fileName);
           setFileType(data.fileType);
           setFilePin(data.pin);
@@ -88,7 +100,8 @@ export default function Shop() {
         setProgress(currentProgress);
 
         if (incomingChunks.length === data.totalChunks) {
-          const blob = reassembleChunks(incomingChunks, data.fileType);
+          // Use receivedFileType (from chunk 0), NOT data.fileType (which is null on the last chunk)
+          const blob = reassembleChunks(incomingChunks, receivedFileType);
           const url = URL.createObjectURL(blob);
           setFileBlob(blob);
           setBlobUrl(url);
@@ -112,7 +125,7 @@ export default function Shop() {
     setUserPin(val);
     if (val.length === 4) {
       if (val === filePin) {
-        setState('unlocked');
+        setIsPinVerified(true);
         toast.success("PIN Verified.");
         window.onafterprint = () => handleExpire('complete');
       } else {
@@ -129,7 +142,35 @@ export default function Shop() {
   };
 
   const handlePrint = () => {
-    window.print();
+    if (!blobUrl) return;
+
+    if (fileType === 'application/pdf') {
+      // PDF Popup Print (Fixed logic)
+      const printWin = window.open(blobUrl, '_blank', 'width=900,height=700');
+      if (!printWin) {
+        window.open(blobUrl, '_blank');
+        return;
+      }
+      printWin.addEventListener('load', () => {
+        printWin.focus();
+        printWin.print();
+        printWin.addEventListener('afterprint', () => {
+          printWin.close();
+          handleExpire('complete');
+        });
+      });
+    } else {
+      // Image Print
+      const printWin = window.open('', '_blank');
+      printWin.document.write(`<html><body style="margin:0;display:flex;justify-content:center;align-items:center;"><img src="${blobUrl}" style="max-width:100%;max-height:100%;"></body></html>`);
+      printWin.document.close();
+      printWin.focus();
+      setTimeout(() => {
+        printWin.print();
+        printWin.close();
+        handleExpire('complete');
+      }, 500);
+    }
   };
 
   const sessionUrl = sessionId ? `${window.location.origin}/send?room=${sessionId}` : '';
@@ -141,7 +182,7 @@ export default function Shop() {
         <div className="transaction-bar">
           <div className="job-badge">
             <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            <span>Job {jobNumber}</span>
+            <span>{t('job_label')} {jobNumber}</span>
           </div>
           <CountdownTimer expiryMinutes={expiryMinutes} onExpire={() => handleExpire('expired')} />
         </div>
@@ -211,24 +252,39 @@ export default function Shop() {
             </div>
           ) : state === 'received' ? (
             <div className="main-card">
-              <div className="w-16 h-16 bg-paper rounded-2xl flex items-center justify-center">
-                <FileText className="w-8 h-8 text-ink" />
+              <div className="w-16 h-16 bg-paper rounded-2xl flex items-center justify-center border border-border">
+                <FileText className={`w-8 h-8 ${isPinVerified ? 'text-success' : 'text-ink'}`} />
               </div>
-              <h3 className="card-title">{t('received')}</h3>
-              <p className="main-card-text">{fileName}</p>
+              <h3 className="card-title">{isPinVerified ? t('verified') : t('received')}</h3>
+              <p className="main-card-text font-bold truncate max-w-xs">{fileName}</p>
               
-              <div className="w-full space-y-4">
-                <PinInput value={userPin} onChange={handlePinChange} label={t('enter_pin')} />
-                {attempts > 0 && <p className="text-accent text-xs font-bold">{3 - attempts} attempts left</p>}
-              </div>
+              <div className="w-full space-y-8 mt-4">
+                <div className={isPinVerified ? 'opacity-40 pointer-events-none grayscale' : ''}>
+                  <PinInput value={userPin} onChange={handlePinChange} label={t('enter_pin')} />
+                </div>
+                
+                {attempts > 0 && !isPinVerified && (
+                  <p className="text-accent text-xs font-bold text-center">{3 - attempts} attempts left</p>
+                )}
 
-              <button onClick={() => handleExpire('complete')} className="cancel-button !mt-8">
-                Discard Document
-              </button>
-            </div>
-          ) : state === 'unlocked' ? (
-            <div className="w-full max-w-4xl">
-               <DocumentViewer blobUrl={blobUrl} fileType={fileType} fileName={fileName} onPrint={handlePrint} />
+                <div className="pt-8 space-y-4">
+                  <button
+                    onClick={handlePrint}
+                    disabled={!isPinVerified}
+                    className={`btn-primary w-full ${!isPinVerified ? 'opacity-40 grayscale cursor-not-allowed' : 'shadow-xl translate-y-[-2px]'}`}
+                  >
+                    <Printer className="w-5 h-5" />
+                    <span>{t('print')}</span>
+                  </button>
+
+                  <button 
+                    onClick={() => handleExpire('complete')} 
+                    className="w-full text-xs font-bold uppercase tracking-widest text-muted hover:text-accent transition-colors py-2"
+                  >
+                    Discard Document
+                  </button>
+                </div>
+              </div>
             </div>
           ) : ['complete', 'expired', 'destroyed'].includes(state) ? (
             <div className="main-card">

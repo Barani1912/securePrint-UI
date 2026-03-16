@@ -12,7 +12,9 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        <div className="navbar-logo">P</div>
+        <div className="navbar-logo">
+          <img src="/logo.png" alt="Patrona Logo" className="w-full h-full object-contain" />
+        </div>
         <h1 className="navbar-title">Patrona</h1>
       </div>
       <div className="navbar-right">

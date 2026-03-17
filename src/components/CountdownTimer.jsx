@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Clock } from 'lucide-react';
 
 export default function CountdownTimer({ expiryMinutes, onExpire }) {
+  const { t } = useTranslation();
   const [timeLeft, setTimeLeft] = useState(expiryMinutes * 60);
 
   useEffect(() => {
@@ -18,10 +20,13 @@ export default function CountdownTimer({ expiryMinutes, onExpire }) {
 
   return (
     <div className={`timer-badge ${timeLeft < 60 ? 'text-accent' : ''}`}>
-      <Clock className="w-4 h-4" />
-      <span>
-        {minutes}:{seconds.toString().padStart(2, '0')}
-      </span>
+      <span className="timer-label">{t('expires_in', 'Expires in')}</span>
+      <div className="timer-value">
+        <Clock className="w-4 h-4" />
+        <span>
+          {minutes}:{seconds.toString().padStart(2, '0')}
+        </span>
+      </div>
     </div>
   );
 }

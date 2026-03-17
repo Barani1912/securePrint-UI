@@ -6,12 +6,13 @@ import {
   Store, 
   Clock, 
   FileText, 
-  Trash2, 
-  ShieldAlert, 
   CheckCircle2, 
   Timer,
   ArrowLeft,
-  Printer
+  Printer,
+  ShieldCheck,
+  Settings2,
+  Activity
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -197,51 +198,87 @@ export default function Shop() {
           className="w-full flex justify-center"
         >
           {state === 'waiting_config' ? (
-            <div className="main-card">
-              <div className="w-16 h-16 bg-paper rounded-2xl flex items-center justify-center border border-border">
-                <Timer className="w-8 h-8 text-ink" />
-              </div>
-              <h2 className="card-title">Configure Station</h2>
-              <div className="w-full space-y-4">
-                <div className="text-left">
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted block mb-2">{t('select_expiry')}</label>
-                  <select 
-                    value={expiryMinutes}
-                    onChange={(e) => setExpiryMinutes(parseInt(e.target.value))}
-                    className="standard-input"
-                  >
-                    <option value={5}>5 {t('minutes')}</option>
-                    <option value={10}>10 {t('minutes')}</option>
-                    <option value={30}>30 {t('minutes')}</option>
-                  </select>
+            <div className="glass-card relative">
+              <button 
+                onClick={() => navigate('/')} 
+                className="absolute top-6 left-6 p-2 rounded-full hover:bg-white/20 transition-colors text-muted hover:text-ink"
+                aria-label={t('back')}
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+
+              <div className="setup-header">
+                <div className="w-20 h-20 bg-white/40 backdrop-blur-md rounded-3xl flex items-center justify-center border border-white/60 shadow-inner">
+                  <ShieldCheck className="w-10 h-10 text-ink" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-extrabold tracking-tight text-ink mb-2">
+                    {t('setup_station_title')}
+                  </h2>
+                  <p className="text-sm text-muted max-w-xs mx-auto leading-relaxed">
+                    {t('setup_station_desc')}
+                  </p>
                 </div>
               </div>
-              <button 
-                onClick={startSession} 
-                className={`btn-primary ${isConnecting ? 'opacity-70 cursor-wait' : ''}`}
-                disabled={isConnecting}
-              >
-                {isConnecting ? (
-                  <>Connecting... <Clock className="w-5 h-5 animate-spin" /></>
-                ) : (
-                  <>{t('start_session')} <Store className="w-5 h-5" /></>
-                )}
-              </button>
-              <button onClick={() => navigate('/')} className="back-button mt-4">
-                <ArrowLeft className="w-4 h-4 inline mr-2" /> {t('back')}
-              </button>
+
+              <div className="w-full space-y-6">
+                <div className="text-left">
+                  <label htmlFor="expiry-select" className="input-label">
+                    {t('select_expiry')}
+                  </label>
+                  <div className="relative">
+                    <select 
+                      id="expiry-select"
+                      value={expiryMinutes}
+                      onChange={(e) => setExpiryMinutes(parseInt(e.target.value))}
+                      className="standard-input"
+                    >
+                      <option value={5}>5 {t('minutes')}</option>
+                      <option value={10}>10 {t('minutes')} ({t('recommended')})</option>
+                      <option value={30}>30 {t('minutes')}</option>
+                    </select>
+                  </div>
+                  <p className="helper-text">
+                    <Activity className="w-3 h-3 inline mr-1 opacity-70" />
+                    {t('duration_note')}
+                  </p>
+                </div>
+
+                <button 
+                  onClick={startSession} 
+                  className={`btn-primary w-full h-14 text-lg ${isConnecting ? 'opacity-70 cursor-wait' : ''}`}
+                  disabled={isConnecting}
+                >
+                  {isConnecting ? (
+                    <>
+                      <Clock className="w-6 h-6 animate-spin" />
+                      <span>{t('connecting')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{t('activate_station')}</span>
+                      <Settings2 className="w-6 h-6" />
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           ) : state === 'waiting' ? (
             <div className="main-card">
               <div className="status-badge">
                 <div className="status-dot animate-pulse" />
-                {t('waiting')}
+                READY TO RECEIVE
               </div>
-              <p className="main-card-text">Customers should scan this QR to start sending their document directly.</p>
+              <h3 className="card-title mt-2">Waiting for Document</h3>
+              <p className="main-card-text">
+                Ask the customer to scan the QR code or use the link below to securely send their file.
+              </p>
               <QRDisplay sessionUrl={sessionUrl} />
-              <button onClick={() => handleExpire('complete')} className="cancel-button">
-                 {t('cancel')}
-              </button>
+              <div className="w-full pt-4 border-t border-border mt-2">
+                <button onClick={() => handleExpire('complete')} className="cancel-button w-full">
+                   End Session
+                </button>
+              </div>
             </div>
           ) : state === 'receiving' ? (
             <div className="main-card">
@@ -258,28 +295,30 @@ export default function Shop() {
               <h3 className="card-title">{isPinVerified ? t('verified') : t('received')}</h3>
               <p className="main-card-text font-bold truncate max-w-xs">{fileName}</p>
               
-              <div className="w-full space-y-8 mt-4">
-                <div className={isPinVerified ? 'opacity-40 pointer-events-none grayscale' : ''}>
-                  <PinInput value={userPin} onChange={handlePinChange} label={t('enter_pin')} />
+              <div className="w-full mt-10 flex flex-col items-center gap-12">
+                <div className="w-full flex flex-col items-center gap-6">
+                  <div className={`${isPinVerified ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
+                    <PinInput value={userPin} onChange={handlePinChange} label={t('enter_pin')} />
+                  </div>
+                  
+                  {attempts > 0 && !isPinVerified && (
+                    <p className="text-accent text-xs font-bold text-center">{3 - attempts} attempts left</p>
+                  )}
                 </div>
-                
-                {attempts > 0 && !isPinVerified && (
-                  <p className="text-accent text-xs font-bold text-center">{3 - attempts} attempts left</p>
-                )}
 
-                <div className="pt-8 space-y-4">
+                <div className="flex flex-col items-center w-full gap-8">
                   <button
                     onClick={handlePrint}
                     disabled={!isPinVerified}
-                    className={`btn-primary w-full ${!isPinVerified ? 'opacity-40 grayscale cursor-not-allowed' : 'shadow-xl translate-y-[-2px]'}`}
+                    className={`btn-primary w-full h-14 rounded-2xl ${!isPinVerified ? 'opacity-40 grayscale cursor-not-allowed' : 'shadow-xl hover:scale-[1.02] active:scale-[0.98]'}`}
                   >
                     <Printer className="w-5 h-5" />
-                    <span>{t('print')}</span>
+                    <span className="text-base font-bold">{t('print')}</span>
                   </button>
 
                   <button 
                     onClick={() => handleExpire('complete')} 
-                    className="w-full text-xs font-bold uppercase tracking-widest text-muted hover:text-accent transition-colors py-2"
+                    className="w-full max-w-[400px] text-[11px] font-bold uppercase tracking-widest text-muted hover:text-accent transition-colors py-2 hover:bg-paper rounded-xl"
                   >
                     Discard Document
                   </button>

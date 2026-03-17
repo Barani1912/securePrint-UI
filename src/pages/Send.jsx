@@ -158,88 +158,105 @@ export default function Send() {
               </button>
             </div>
           ) : state === 'ready' ? (
-            <div className="main-card">
-              <div className="w-12 h-12 bg-paper rounded-full flex items-center justify-center text-muted">
-                <Smartphone className="w-6 h-6" />
+            <div className="main-card px-8 py-10">
+              <div className="w-12 h-12 bg-ink rounded-xl flex items-center justify-center text-white shadow-lg">
+                <FileUp className="w-6 h-6" />
               </div>
-              <h2 className="card-title">Send Document</h2>
+              <h2 className="card-title text-2xl mt-4">Upload & Send Document</h2>
+              <p className="text-sm text-muted mt-1 max-w-xs mx-auto text-center leading-relaxed">Your files are encrypted and sent directly to the printer via a secure P2P link.</p>
 
-              <div className="w-full flex flex-col gap-10 mt-8">
+              <div className="w-full flex flex-col gap-8 mt-8">
                 {/* File Dropzone */}
-                <div className={`relative group border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center bg-paper hover:bg-white transition-all cursor-pointer min-h-[160px] ${file ? 'p-8' : 'p-12'}`}>
+                <div 
+                  className={`relative group border-2 border-dashed rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer min-h-[160px] ${file ? 'border-success bg-success/5 p-6' : 'border-border bg-paper hover:bg-white p-10'}`}
+                  onClick={() => document.getElementById('file-upload').click()}
+                >
                   <input
                     type="file"
+                    id="file-upload"
                     accept=".pdf,.jpg,.jpeg,.png"
                     onChange={handleFileChange}
                     className="absolute inset-0 opacity-0 cursor-pointer"
                   />
                   {file ? (
-                    <div className="flex items-center gap-6">
-                      <div className="w-14 h-14 bg-ink rounded-xl flex items-center justify-center text-white shadow-xl">
+                    <div className="flex flex-col items-center gap-4 w-full animate-in fade-in zoom-in-95 duration-300">
+                      <div className="w-14 h-14 bg-success rounded-2xl flex items-center justify-center text-white shadow-xl">
                         <FileText className="w-7 h-7" />
                       </div>
-                      <div className="text-left">
-                        <p className="text-base font-bold text-ink truncate max-w-[200px]">{file.name}</p>
-                        <p className="text-xs text-muted font-bold uppercase tracking-widest mt-1">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                      <div className="text-center overflow-hidden w-full">
+                        <p className="text-base font-bold text-ink truncate px-4">{file.name}</p>
+                        <div className="flex items-center justify-center gap-2 mt-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-success" />
+                          <p className="text-[10px] text-success font-bold uppercase tracking-widest font-extrabold">READY ({(file.size / (1024 * 1024)).toFixed(2)} MB)</p>
+                        </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center gap-5">
-                      <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-muted shadow-sm group-hover:scale-110 transition-transform">
-                        <FileUp className="w-7 h-7" />
+                    <div className="flex flex-col items-center gap-4 text-center">
+                      <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-muted shadow-sm group-hover:scale-110 group-hover:text-ink transition-all">
+                        <FileUp className="w-6 h-6" />
                       </div>
-                      <span className="text-sm font-bold text-ink">{t('select_file')} (Max 10MB)</span>
+                      <div>
+                        <p className="text-sm font-bold text-ink">Click to upload or drag & drop</p>
+                        <p className="text-[10px] text-muted font-bold uppercase tracking-widest mt-2 px-4 py-1.5 bg-white rounded-full inline-block border border-border">PDF, JPG, PNG (Max 10MB)</p>
+                      </div>
                     </div>
                   )}
                 </div>
 
                 {/* Section Divider */}
-                <div className="flex items-center gap-4 px-2 py-2">
+                <div className="flex items-center gap-4 px-2">
                   <div className="h-[1px] flex-1 bg-border" />
-                  <div className="text-[10px] font-bold uppercase tracking-[0.4em] text-muted whitespace-nowrap">Security Check</div>
+                  <div className="text-[10px] font-extrabold uppercase tracking-[0.25em] text-muted whitespace-nowrap">Secure your document</div>
                   <div className="h-[1px] flex-1 bg-border" />
                 </div>
 
                 {/* PIN Setup */}
-                <div className="flex flex-col gap-10">
+                <div className="flex flex-col gap-6 w-full items-center text-center">
                   <div className="w-full">
-                    <label className="text-xs font-bold uppercase tracking-widest text-muted block mb-6 text-center">Set 4-Digit Security PIN</label>
+                    <div className="text-center mb-4">
+                      <label className="text-[11px] font-bold uppercase tracking-widest text-ink block mb-1">Set 4-Digit Security PIN</label>
+                      <p className="text-[10px] text-muted font-medium">The shop owner will need this to unlock your file.</p>
+                    </div>
                     <div className="flex justify-center">
-                      <PinInput value={pin} onChange={setPin} />
+                      <PinInput value={pin} onChange={setPin} autoFocus />
                     </div>
                   </div>
                   
-                  {pin.length === 4 && (
-                    <motion.div 
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="w-full"
-                    >
-                      <label className="text-xs font-bold uppercase tracking-widest text-muted block mb-6 text-center">{t('confirm_pin')}</label>
-                      <div className="flex justify-center">
-                        <PinInput value={confirmPin} onChange={setConfirmPin} />
-                      </div>
-                      {confirmPin.length === 4 && pin !== confirmPin && (
-                        <p className="text-accent text-xs font-bold uppercase tracking-widest mt-5 flex items-center justify-center gap-2">
-                          <AlertCircle className="w-4 h-4" /> {t('pin_mismatch')}
-                        </p>
-                      )}
-                    </motion.div>
-                  )}
+                  <AnimatePresence>
+                    {pin.length === 4 && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="w-full overflow-hidden"
+                      >
+                        <label className="text-[11px] font-bold uppercase tracking-widest text-ink block mb-4 text-center">Confirm Your PIN</label>
+                        <div className="flex justify-center">
+                          <PinInput value={confirmPin} onChange={setConfirmPin} autoFocus />
+                        </div>
+                        {confirmPin.length === 4 && pin !== confirmPin && (
+                          <p className="text-accent text-[10px] font-bold uppercase tracking-widest mt-4 flex items-center justify-center gap-2">
+                            <AlertCircle className="w-3.5 h-3.5" /> PIN Mismatch
+                          </p>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
-                <div className="pt-4">
+                <div className="pt-2 flex flex-col items-center w-full">
                   <button
                     onClick={handleSend}
                     disabled={!isFormValid}
-                    className={`btn-primary w-full ${!isFormValid ? 'opacity-40 grayscale cursor-not-allowed' : 'hover:shadow-xl hover:translate-y-[-2px] active:translate-y-0 transition-all'}`}
+                    className={`btn-primary w-full h-14 rounded-2xl ${!isFormValid ? 'opacity-40 grayscale cursor-not-allowed' : 'hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all'}`}
                   >
-                    <span>{t('send_securely')}</span>
-                    <ArrowRight className="w-5 h-5" />
+                    <span className="text-base font-bold">{!file ? "Select a File to Continue" : isFormValid ? "Upload & Send Securely" : "Confirm Security PIN"}</span>
+                    {isFormValid && <ArrowRight className="w-5 h-5 ml-2" />}
                   </button>
                   <button 
                     onClick={() => navigate('/')} 
-                    className="w-full text-xs font-bold uppercase tracking-widest text-muted hover:text-ink transition-colors mt-6 py-2"
+                    className="w-full max-w-[400px] text-[11px] font-bold uppercase tracking-widest text-muted hover:text-ink transition-colors mt-4 py-2 hover:bg-paper rounded-xl"
                   >
                     Cancel & Go Back
                   </button>
